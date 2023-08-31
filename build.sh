@@ -20,6 +20,7 @@ displayHelp () {
 	printf "\n" &&
 	printf "${bold}${GRE}Script to build mpv on Linux.${c0}\n" &&
 	printf "${bold}${YEL}Use the --deps install build deps.${c0}\n" &&
+	printf "${bold}${YEL}Use the --bootstrap to clone & prepare the mpv repo.${c0}\n" &&
 	printf "${bold}${YEL}Use the --clean flag to clean configure & build artifacts.${c0}\n" &&
 	printf "${bold}${YEL}Use the --build flag to build with AVX.${c0}\n" &&
 	printf "${bold}${YEL}Use the --sse4 flag to build with SSE4.1.${c0}\n" &&
@@ -41,7 +42,24 @@ case $1 in
 	--deps) installDeps; exit 0;;
 esac
 
+bootstrapMpv () {
+# You can set the version here
+MPV_VER="v0.34.1"
+export MPV_VER &&
+
+rm -r -f -v ./mpv &&
+
+git clone --recursive --recurse-submodules https://github.com/mpv-player/mpv.git &&
+cd ./mpv &&
+git checkout -f tags/$MPV_VER &&
+./bootstrap.py
+}
+case $1 in
+	--bootstrap) bootstrapMpv; exit 0;;
+esac
+
 wafClean () {
+cd ./mpv &&
 export VERBOSE=1 &&
 ./waf clean &&
 ./waf distclean
@@ -51,6 +69,7 @@ case $1 in
 esac
 
 buildMpv () {
+cd ./mpv &&
 export CFLAGS="-pipe -DNDEBUG -O3 -mavx -maes -s -g0 -flto" &&
 export CPPFLAGS="-pipe -DNDEBUG -O3 -mavx -maes -s -g0 -flto" &&
 export CXXFLAGS="-pipe -DNDEBUG -O3 -mavx -maes -s -g0 -flto" &&
@@ -65,6 +84,7 @@ case $1 in
 esac
 
 buildSSE4 () {
+cd ./mpv &&
 export CFLAGS="-pipe -DNDEBUG -O3 -msse4.1 -s -g0 -flto" &&
 export CPPFLAGS="-pipe -DNDEBUG -O3 -msse4.1 -s -g0 -flto" &&
 export CXXFLAGS="-pipe -DNDEBUG -O3 -msse4.1 -s -g0 -flto" &&
@@ -81,6 +101,7 @@ esac
 printf "\n" &&
 printf "${bold}${GRE}Script to build mpv on Linux.${c0}\n" &&
 printf "${bold}${YEL}Use the --deps install build deps.${c0}\n" &&
+printf "${bold}${YEL}Use the --bootstrap to clone & prepare the mpv repo.${c0}\n" &&
 printf "${bold}${YEL}Use the --clean flag to clean configure & build artifacts.${c0}\n" &&
 printf "${bold}${YEL}Use the --build flag to build with AVX.${c0}\n" &&
 printf "${bold}${YEL}Use the --sse4 flag to build with SSE4.1.${c0}\n" &&
