@@ -1,0 +1,11 @@
+.DS_Store
+/dist/
+/mpv/
+thumbs.db
+
+# IntelliJ platform
+.idea/
+*.iml
+
+# Dolphin file manager
+.directory
